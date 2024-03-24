@@ -2,6 +2,7 @@
 
 import {FC, useEffect, useState} from 'react';
 import {CreateServerModal} from "@/components/modals/create-server-modal";
+import {InviteModal} from "@/components/modals/invite-modal";
 
 interface IModalProviderProps {
 }
@@ -20,6 +21,7 @@ export const ModalProvider: FC<IModalProviderProps> = () => {
   return (
     <>
       <CreateServerModal/>
+      <InviteModal />
     </>
   );
 };
