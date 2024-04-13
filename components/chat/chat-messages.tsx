@@ -86,7 +86,7 @@ export const ChatMessages: FC<IChatMessagesProps> = (
 
   return (
     <div ref={chatRef}
-         className="flex flex-col py-4 overflow-y-auto"
+         className="flex flex-1 flex-col py-4 overflow-y-auto"
     >
       {!hasNextPage && <div className="flex-1" />}
       {!hasNextPage && <ChatWelcome type={type}

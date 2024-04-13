@@ -1,48 +1,50 @@
-import {NextPage} from "next";
-import {currentProfile} from "@/lib/current-profile";
-import {redirectToSignIn} from "@clerk/nextjs";
-import {db} from "@/lib/db";
-import {redirect} from "next/navigation";
-import {getOrCreateConversation} from "@/lib/conversation";
-import {ChatHeader} from "@/components/chat/chat-header";
+import { NextPage } from "next";
+import { currentProfile } from "@/lib/current-profile";
+import { redirectToSignIn } from "@clerk/nextjs";
+import { db } from "@/lib/db";
+import { redirect } from "next/navigation";
+import { getOrCreateConversation } from "@/lib/conversation";
+import { ChatHeader } from "@/components/chat/chat-header";
+import { ChatMessages } from "@/components/chat/chat-messages";
+import { ChatInput } from "@/components/chat/chat-input";
 
 interface IMemberIdPageProps {
   params: {
     memberId: string
     serverId: string
-  }
+  };
 }
 
-const MemberIdPage: NextPage<IMemberIdPageProps> = async ({params}) => {
-  const profile = await currentProfile()
+const MemberIdPage: NextPage<IMemberIdPageProps> = async ({ params }) => {
+  const profile = await currentProfile();
 
   if (!profile) {
-    return redirectToSignIn()
+    return redirectToSignIn();
   }
 
   const currentMember = await db.member.findFirst({
     where: {
       serverId: params.serverId,
-      profileId: profile.id
+      profileId: profile.id,
     },
     include: {
-      profile: true
-    }
-  })
+      profile: true,
+    },
+  });
 
   if (!currentMember) {
-    return redirect("/")
+    return redirect("/");
   }
 
-  const conversation = await getOrCreateConversation(currentMember.id, params.memberId)
+  const conversation = await getOrCreateConversation(currentMember.id, params.memberId);
 
   if (!conversation) {
-    return redirect(`/servers/${params.serverId}`)
+    return redirect(`/servers/${params.serverId}`);
   }
 
-  const {memberTwo, memberOne} = conversation
+  const { memberTwo, memberOne } = conversation;
 
-  const otherMember = memberOne.profileId === profile.id ? memberTwo : memberOne
+  const otherMember = memberOne.profileId === profile.id ? memberTwo : memberOne;
 
 
   return (
@@ -52,7 +54,27 @@ const MemberIdPage: NextPage<IMemberIdPageProps> = async ({params}) => {
                   type={"conversation"}
                   imageUrl={otherMember.profile.imageUrl}
       />
+      <ChatMessages member={currentMember}
+                    name={otherMember.profile.name}
+                    chatId={conversation.id}
+                    type={"conversation"}
+                    apiUrl={"/api/direct-messages"}
+                    paramKey={"conversationId"}
+                    paramValue={conversation.id}
+                    socketUrl={"/api/socket/direct-messages"}
+                    socketQuery={{
+                      conversationId: conversation.id,
+                    }}
+      />
+      <ChatInput apiUrl={"/api/socket/direct-messages"}
+                 query={{
+                   conversationId: conversation.id,
+                 }}
+                 name={otherMember.profile.name}
+                 type={"conversation"}
+      />
+
     </div>
   );
 };
-export default MemberIdPage
+export default MemberIdPage;
