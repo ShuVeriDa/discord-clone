@@ -80,7 +80,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
       }
     })
 
-    const channelKey = `chat: ${channelId}:messages`
+    const channelKey = `chat:${channelId}:messages`
 
     res?.socket?.server?.io?.emit(channelKey, message)
 
@@ -90,5 +90,4 @@ export default async function handler(req: NextApiRequest, res: NextApiResponseS
     console.log("[MESSAGES_POST]", error)
     return res.status(500).json({message: "Internal Error"})
   }
-
 }
